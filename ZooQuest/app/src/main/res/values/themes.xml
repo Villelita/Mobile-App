@@ -3,6 +3,9 @@
     <style name="Base.Theme.ZooQuest" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">#000</item>
+        <!-- Color secundario / accent -->
+        <item name="colorSecondary">#000</item>
     </style>
 
     <style name="Theme.ZooQuest" parent="Base.Theme.ZooQuest" />
