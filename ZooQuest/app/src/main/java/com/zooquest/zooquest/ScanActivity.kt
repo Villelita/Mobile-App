@@ -2,8 +2,8 @@ package com.zooquest.zooquest
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.IntentFilter
 import android.nfc.NfcAdapter
-import android.nfc.Tag
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +15,8 @@ class ScanActivity : AppCompatActivity() {
 
     private lateinit var nfcAdapter: NfcAdapter
     private var pendingIntent: PendingIntent? = null
+    private lateinit var nfcIntentFilters: Array<IntentFilter>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,31 +39,35 @@ class ScanActivity : AppCompatActivity() {
         if (!nfcAdapter.isEnabled) {
             Toast.makeText(this, "Por favor activa NFC en configuración", Toast.LENGTH_LONG).show()
         }
-
-        pendingIntent = PendingIntent.getActivity(
-            this, 0,
-            Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
-            PendingIntent.FLAG_MUTABLE
-        )
     }
 
     override fun onResume() {
         super.onResume()
-        nfcAdapter.enableForegroundDispatch(this, pendingIntent, null, null)
+       if (::nfcAdapter.isInitialized && nfcAdapter.isEnabled) {
+            nfcAdapter.enableForegroundDispatch(this, pendingIntent, nfcIntentFilters, null)
+        } else {
+            nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+        }
+
+        val options = Bundle()
+        nfcAdapter.enableReaderMode(
+            this,
+            { tag ->
+                runOnUiThread {
+                    startActivity(Intent(this@ScanActivity, AnimalActivity::class.java))
+                }
+            },
+            NfcAdapter.FLAG_READER_NFC_A or
+                    NfcAdapter.FLAG_READER_NFC_B or
+                    NfcAdapter.FLAG_READER_NFC_F or
+                    NfcAdapter.FLAG_READER_NFC_V,
+            options
+        )
     }
 
     override fun onPause() {
         super.onPause()
-        nfcAdapter.disableForegroundDispatch(this)
+        nfcAdapter.disableReaderMode(this)
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
-            val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
-            val id = tag?.id
-            val tagId = id?.joinToString(":") { String.format("%02X", it) }
-            Toast.makeText(this, "NFC detectado: $tagId", Toast.LENGTH_LONG).show()
-        }
-    }
 }

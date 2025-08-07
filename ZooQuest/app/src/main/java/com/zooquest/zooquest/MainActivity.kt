@@ -26,12 +26,19 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        binding.profileBtn.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
         binding.scanBtn.setOnClickListener {
             startActivity(Intent(this, ScanActivity::class.java))
         }
 
         onBackPressedDispatcher.addCallback(this) {
             mostrarDialogoCerrarSesion(this@MainActivity, {
+                val sharedPref = getSharedPreferences("mi_pref", Context.MODE_PRIVATE)
+                val editor = sharedPref.edit()
+                editor.remove("nombre_usuario")
+                editor.apply()
                 startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                 finish()
             })

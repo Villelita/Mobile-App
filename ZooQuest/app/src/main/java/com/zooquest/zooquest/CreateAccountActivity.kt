@@ -1,20 +1,38 @@
 package com.zooquest.zooquest
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.textfield.TextInputLayout
+import com.zooquest.zooquest.data.UsersViewModelFactory
+import com.zooquest.zooquest.data.database.AppDatabase
 import com.zooquest.zooquest.databinding.ActivityCreateAccountBinding
+import com.zooquest.zooquest.repository.UsersRepository
+import com.zooquest.zooquest.viewModel.UsersViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 class CreateAccountActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreateAccountBinding
+
+    private val viewModel: UsersViewModel by viewModels {
+        val dao = AppDatabase.getInstance(applicationContext).userDAO()
+        val repo = UsersRepository(dao)
+        UsersViewModelFactory(repo)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +45,18 @@ class CreateAccountActivity : AppCompatActivity() {
             insets
         }
         setUpDatePicker()
+        // Observar éxito de inserción
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.insertExitoso.collectLatest { fueExitoso ->
+                    if (fueExitoso) {
+                        Toast.makeText(this@CreateAccountActivity, "Usuariio crado exitosamente", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this@CreateAccountActivity, LoginActivity::class.java))
+                        finish()
+                    }
+                }
+            }
+        }
     }
 
     private fun setUpDatePicker() {
@@ -63,7 +93,12 @@ class CreateAccountActivity : AppCompatActivity() {
             )
 
             if (formularioValido) {
-                // Continuar con el proceso
+                viewModel.agregar(
+                    binding.nameInputLayout.editText?.text.toString().trim(),
+                    binding.passwordInputLayout.editText?.text.toString().trim(),
+                    binding.emailInputLayout.editText?.text.toString().trim(),
+                    binding.birthInputLayout.editText?.text.toString().trim()
+                )
             }
         }
     }

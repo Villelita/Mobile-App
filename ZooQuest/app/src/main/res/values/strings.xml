@@ -6,6 +6,11 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="titulo">Jaguar</string>
+    <string name="habitat">Habitat: jungle</string>
+    <string name="status">"Status: Near Threatened (IUCN) due to habitat loss and poaching."</string>
+    <string name="dieta">"Diet: Carnivore – feeds on peccaries, deer, tapirs, caimans, snakes, and other animals. It is an opportunistic predator."</string>
+    <string name="descripcion">"The jaguar is the largest feline in the Americas and the third largest in the world, after the tiger and the lion. It has a golden-yellow coat with black rosette-shaped spots, and some individuals are melanistic (black panthers). It is a muscular animal with extremely powerful jaws."</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
